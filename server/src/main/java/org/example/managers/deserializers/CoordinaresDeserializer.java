@@ -1,4 +1,4 @@
-package org.example.deserializers;
+package org.example.managers.deserializers;
 
 import com.google.gson.*;
 import org.example.recources.Coordinates;
