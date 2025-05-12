@@ -1,4 +1,4 @@
-package org.example.managers;
+ package org.example.managers;
 
 import org.example.managers.commands.*;
 import org.example.managers.commands.BaseCommand;
