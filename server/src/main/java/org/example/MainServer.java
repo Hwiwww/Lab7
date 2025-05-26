@@ -19,10 +19,10 @@ public class MainServer {
         serverEnvironment.setCommandManager(commandManager);
         serverEnvironment.setFileManager(fileManager);
 
-        DatabaseManager.setURL(URL);
-        DatabaseManager.setUsername("postgres");
-        DatabaseManager.setPassword("71886228");
-        DatabaseManager.connectToDatabase();;
+//        DatabaseManager.setURL(URL);
+//        DatabaseManager.setUsername("postgres");
+//        DatabaseManager.setPassword("71886228");
+//        DatabaseManager.connectToDatabase();;
 
         String filePath = System.getenv("MY_FILE_PATH");
         if (filePath == null) {
@@ -32,20 +32,20 @@ public class MainServer {
 
         System.out.println("Reading a file " + filePath);
 
-        File file = new File(filePath);
-        if (!file.exists() || !file.canRead()) {
-            System.err.println("Can't read a file " + filePath);
-            return;
-        }
-        if (file.canRead() && file.canWrite()) {
-            System.out.println("Downloading data from file.");
-            try {
-                ServerEnvironment.getInstance().getFileManager().readFile(filePath);
-                System.out.println("Data was downloaded");
-            } catch (Exception e) {
-                System.out.println("Something wrong with reading a file");
-            }
-        }
+//        File file = new File(filePath);
+//        if (!file.exists() || !file.canRead()) {
+//            System.err.println("Can't read a file " + filePath);
+//            return;
+//        }
+//        if (file.canRead() && file.canWrite()) {
+//            System.out.println("Downloading data from file.");
+//            try {
+//                ServerEnvironment.getInstance().getFileManager().readFile(filePath);
+//                System.out.println("Data was downloaded");
+//            } catch (Exception e) {
+//                System.out.println("Something wrong with reading a file");
+//            }
+//        }
 
         Server server = new Server(6652);
         server.run();

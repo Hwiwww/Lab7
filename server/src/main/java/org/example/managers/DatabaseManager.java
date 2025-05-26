@@ -4,6 +4,7 @@ import org.example.recources.Coordinates;
 import org.example.recources.Dragon;
 import org.example.recources.DragonCave;
 import org.example.recources.DragonType;
+import org.example.system.Request;
 
 import java.sql.*;
 import java.util.Hashtable;
@@ -17,9 +18,11 @@ public class DatabaseManager {
     private static final String ADD_USER = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
     private static final String GET_USER_BY_USERNAME = "SELECT id, username, password_hash FROM users where username = ?";
     private static final String REMOVE_ALL_USER_DRAGONS = "DELETE FROM dragons WHERE owner_id = ?";
+    private static final String SHOW_ALL_USER_DRAGONS = "SELECT * FROM dragons WHERE owner_id = ?";
     private static final String REMOVE_DRAGON = "DELETE FROM dragons WHERE id = ?";
     private static final String UPDATE_DRAGON_BY_ID = "UPDATE dragons SET name = ?, coordinate_x = ?, coordinate_y = ?, creationdate = ?, age = ?, weight = ?, " +
             "speaking = ?, type = ?, cave_depth = ?, cave_number_of_treasures = ?, owner_id = ? WHERE id = ?";
+    private static final String GET_OWNER_BY_KEY = "SELECT owner_id FROM dragons WHERE id = ?";
     private static DatabaseManager instance = null;
     private static Connection connection;
 
@@ -61,24 +64,21 @@ public class DatabaseManager {
 
     public static boolean checkUser(String username, String password) {
         try {
-            // Подготовка запроса для поиска пользователя по логину
             PreparedStatement getStatement = connection.prepareStatement(GET_USER_BY_USERNAME);
             getStatement.setString(1, username);
             ResultSet rs = getStatement.executeQuery();
 
-            // Проверяем, найден ли пользователь
             if (rs.next()) {
-                // Сравниваем хэш пароля, хранящийся в базе, с хэшем введенного пароля
                 String storedPasswordHash = rs.getString("password_hash");
                 String enteredPasswordHash = PasswordHandler.hashPassword(password);
 
                 return storedPasswordHash.equals(enteredPasswordHash);
             }
 
-            // Если пользователь не найден, возвращаем false
+
             return false;
         } catch (Exception e) {
-            e.printStackTrace();  // Для отладки ошибки
+            e.printStackTrace();
             return false;
         }
     }
@@ -139,19 +139,20 @@ public class DatabaseManager {
         }
     }
 
-//    public static int getOwnerId(String key) {
-//        try {
-//            PreparedStatement getStatement = connection.prepareStatement(GET_OWNER_BY_KEY);
-//            getStatement.setString(1, key);
-//            ResultSet rs = getStatement.executeQuery();
-//            if (rs.next()) {
-//                return rs.getInt("owner_id");
-//            }
-//            return -2;
-//        } catch (Exception e) {
-//            return -2;
-//        }
-//    }
+    public static int getOwnerId(Long id) {
+        try {
+            PreparedStatement getStatement = connection.prepareStatement(GET_OWNER_BY_KEY);
+            getStatement.setLong(1, id);
+            ResultSet rs = getStatement.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("owner_id");
+            }
+            return -2;
+        } catch (Exception e) {
+            return -2;
+        }
+    }
+
 
     public static boolean insertDragon(Dragon dragon, String username) {
         int id = getUserId(username);
@@ -173,8 +174,8 @@ public class DatabaseManager {
             Dragon dragon = new Dragon();
             dragon.setID((long) rs.getInt("id"));
             dragon.setName(rs.getString("name"));
-            dragon.setCoordinates(new Coordinates(rs.getDouble("coordinate_X"), rs.getLong("coordinate_Y")));
-            dragon.setCreationDate(rs.getDate("creation_date").toLocalDate());
+            dragon.setCoordinates(new Coordinates(rs.getDouble("coordinate_x"), rs.getLong("coordinate_y")));
+            dragon.setCreationDate(rs.getDate("creationdate").toLocalDate());
             dragon.setAge(rs.getLong("age"));
             dragon.setWeight(rs.getInt("weight"));
             dragon.setSpeaking(rs.getBoolean("speaking"));
@@ -182,7 +183,7 @@ public class DatabaseManager {
             dragon.setCave(new DragonCave(rs.getInt("cave_depth"), rs.getFloat("cave_number_of_treasures")));
             return dragon;
         } catch (SQLException e) {
-            e.getSQLState();
+            System.out.println(e.getMessage());
             return null;
         }
 
@@ -197,7 +198,8 @@ public class DatabaseManager {
                     Dragon dragon = createDragonFromStatement(rs);
                     dragons.put(dragon.getID(), dragon);
                 } catch (Exception e) {
-                    e.getMessage();
+                    System.err.println("Dragon creation error: " + e.getMessage());  // Логируем ошибку
+                    continue;
                 }
             }
         } catch (SQLException e) {
@@ -220,15 +222,18 @@ public class DatabaseManager {
         return false;
     }
 
-    public static boolean removeOrganizationById(long id) {
-        try (PreparedStatement statement = connection.prepareStatement(REMOVE_DRAGON)) {
-            statement.setLong(1, id);
-            statement.executeUpdate();
-            statement.close();
-            return true;
-        } catch (SQLException e) {
-            System.err.println("Couldn't remove organization. Reason: " + e.getMessage());
-            return false;
-        }
+    public static boolean removeDragonById(long id, String username) {
+        int userId = getUserId(username);
+        if (userId == getOwnerId(id)) {
+            try (PreparedStatement statement = connection.prepareStatement(REMOVE_DRAGON)) {
+                statement.setLong(1, id);
+                statement.executeUpdate();
+                statement.close();
+                return true;
+            } catch (SQLException e) {
+                System.err.println("Couldn't remove organization. Reason: " + e.getMessage());
+                return false;
+            }
+        } else return false;
     }
 }

@@ -42,7 +42,13 @@ public class Server implements Runnable {
 
     public void run() {
         CollectionManager manager = ServerEnvironment.getInstance().getCollectionManager();
-        manager.setTable(DatabaseManager.getCollectionFromDatabase());
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
+        databaseManager.setURL("jdbc:postgresql://localhost:6651/dragons");
+        databaseManager.setUsername("postgres");
+        databaseManager.setPassword("71886228");
+        databaseManager.connectToDatabase();;
+        manager.setTable(databaseManager.getCollectionFromDatabase());
+
         try (Selector selector = Selector.open();
              ServerSocketChannel serverChannel = ServerSocketChannel.open()) {
 
@@ -61,9 +67,11 @@ public class Server implements Runnable {
 
                     if (key.isAcceptable()) {
                         SocketChannel clientChannel = serverChannel.accept();
-                        clientChannel.configureBlocking(false);
-                        clientChannel.register(selector, SelectionKey.OP_READ, new StringBuilder());
-                        System.out.println("Connecting client: " + clientChannel.getRemoteAddress());
+                        if (clientChannel != null) {  // Проверяем, что канал не null
+                            clientChannel.configureBlocking(false);
+                            clientChannel.register(selector, SelectionKey.OP_READ, new StringBuilder());
+                            System.out.println("Connecting client: " + clientChannel.getRemoteAddress());
+                        }
                     }
 
                     if (key.isReadable()) {

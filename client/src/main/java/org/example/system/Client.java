@@ -57,14 +57,14 @@ public class Client {
             Request request = null;
             Dragon dragon = null;
 
-            while ((username == null) || password == null) {
+            if ((username == null) || password == null) {
                 if (command.equals("register") || command.equals("login")) {
                     request = new Request(command, dragon, arguments);
                     username = arguments[0];
                     password = arguments[1];
-                    break;
                 } else {
                     System.out.println("Another commands are not available. Register or login to use it");
+                    continue;
                 }
             }
 

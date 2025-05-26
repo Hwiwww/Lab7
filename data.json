@@ -1,0 +1,36 @@
+[
+  {
+    "id": 415776,
+    "name": "l",
+    "coordinates": {
+      "coordinatesX": 1.0,
+      "coordinatesY": 1
+    },
+    "creationDate": "2025-03-01",
+    "age": 1,
+    "weight": 6,
+    "speaking": true,
+    "dragonType": "UNDERGROUND",
+    "dragonCave": {
+      "dragonCaveDepth": 1.0,
+      "dragonCaveNumberOfTreasures": 1
+    }
+  },
+  {
+    "id": 532419,
+    "name": "name",
+    "coordinates": {
+      "coordinatesX": 5.0,
+      "coordinatesY": 5
+    },
+    "creationDate": "2025-03-03",
+    "age": 6,
+    "weight": 7,
+    "speaking": true,
+    "dragonType": "AIR",
+    "dragonCave": {
+      "dragonCaveDepth": 5.0,
+      "dragonCaveNumberOfTreasures": 5
+    }
+  }
+]

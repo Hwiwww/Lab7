@@ -62,17 +62,16 @@ public class Receiver {
     }
 
     public static String remove(Request request) {
-        long key = Long.parseLong(request.getArgs()[1]);
-        ServerEnvironment.getInstance().getCollectionManager().getCollection().remove(key);
-        return "Element was removed";
+        ServerEnvironment.getInstance().getCollectionManager().removeByKey(request);
+        return "";
     }
 
     public static String removeGreater(Request request) {
-        return ServerEnvironment.getInstance().getCollectionManager().removeGreater(request.getDragon());
+        return ServerEnvironment.getInstance().getCollectionManager().removeGreater(request);
     }
 
     public static String removeLower(Request request) {
-        return ServerEnvironment.getInstance().getCollectionManager().removeLower(request.getDragon());
+        return ServerEnvironment.getInstance().getCollectionManager().removeLower(request);
     }
 
     public static String replaceIfGreater(Request request) {

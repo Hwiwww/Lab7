@@ -1,6 +1,7 @@
 package org.example.managers;
 
 import org.example.recources.Dragon;
+import org.example.system.Receiver;
 import org.example.system.Request;
 
 import java.time.LocalDate;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 import static org.example.system.Receiver.downloadData;
 
 public class CollectionManager {
-    public static Hashtable<Long, Dragon> hashTable = new Hashtable<>();
+    public Hashtable<Long, Dragon> hashTable = new Hashtable<>();
     private static LocalDate date;
     private static long sumOfAges;
 
@@ -37,7 +38,7 @@ public class CollectionManager {
     }
 
     public void setTable(Hashtable<Long, Dragon> table) {
-        CollectionManager.hashTable = table;
+        this.hashTable = table;
     }
 
     public String filterLessThanWeight(Request request) {
@@ -55,6 +56,13 @@ public class CollectionManager {
         return text.toString();
     }
 
+    public static void removeByKey(Request request) {
+        if (DatabaseManager.removeDragonById(Long.parseLong(request.getArgs()[0]), request.getUsername())) {
+            downloadData();
+            System.out.println("Element was removed");
+        } else System.out.println("Element wasn't removed");
+    }
+
     public String getMinByCoordinates(Request request) {
         if (hashTable.isEmpty()) {
             return "Collection is empty";
@@ -68,17 +76,17 @@ public class CollectionManager {
         }
     }
 
-    public String removeGreater(Dragon dragon) {
+    public String removeGreater(Request request) {
         if (hashTable.isEmpty()) {
             return "Collection is empty";
         } else {
-            int maxWeight = dragon.getWeight();
+            int maxWeight = request.getDragon().getWeight();
             CollectionManager manager = ServerEnvironment.getInstance().getCollectionManager();
             Iterator<Map.Entry<Long, Dragon>> iterator = manager.getCollection().entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Long, Dragon> entry = iterator.next();
                 if (entry.getValue().getWeight() > maxWeight) {
-                    if (DatabaseManager.removeOrganizationById(entry.getValue().getID())) {
+                    if (DatabaseManager.removeDragonById(entry.getValue().getID(), request.getUsername())) {
                         downloadData();
                         return "Collection was changed";
                     } else {
@@ -92,17 +100,17 @@ public class CollectionManager {
         }
     }
 
-    public String removeLower(Dragon dragon) {
+    public String removeLower(Request request) {
         if (hashTable.isEmpty()) {
             return "Collection is empty";
         } else {
-            int minWeight = dragon.getWeight();
+            int minWeight = request.getDragon().getWeight();
             CollectionManager manager = ServerEnvironment.getInstance().getCollectionManager();
             Iterator<Map.Entry<Long, Dragon>> iterator = manager.getCollection().entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<Long, Dragon> entry = iterator.next();
                 if (entry.getValue().getWeight() < minWeight) {
-                    if (DatabaseManager.removeOrganizationById(entry.getValue().getID())) {
+                    if (DatabaseManager.removeDragonById(entry.getValue().getID(), request.getUsername())) {
                         downloadData();
                         return "Collection was changed";
                     } else {
